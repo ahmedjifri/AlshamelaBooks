@@ -26,8 +26,8 @@ jobs:
             gh release create books --target main --title "حزم الكتب" --notes-file release-notes-template.md
           fi
 
-      # اختبار مؤقت: هل تحفظ واجهة الرفع الاسم العربي في حقل التسمية؟
-      - name: Label test
+      # تنظيف ملفات الاختبار إن وُجدت
+      - name: Cleanup test files
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -35,10 +35,3 @@ jobs:
           for id in $(gh api "repos/$GITHUB_REPOSITORY/releases/$REL/assets" --jq '.[] | select(.name | endswith(".bin")) | .id'); do
             gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$id"
           done
-          if [ -f .label-test ]; then
-            echo test > t.bin
-            curl -sS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: application/octet-stream" --data-binary @t.bin \
-              "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$REL/assets?name=label-test.bin&label=%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A7%D8%B3%D9%85"
-            curl -sS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: application/octet-stream" --data-binary @t.bin \
-              "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$REL/assets?name=%D8%A7%D9%84%D8%AD%D8%AF%D9%8A%D8%AB.bin"
-          fi
