@@ -1,0 +1,27 @@
+name: Setup books release
+
+# ينشئ إصدار الحزم مرة واحدة إن لم يكن موجوداً
+on:
+  push:
+    branches:
+      - main
+      - setup-release
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create release if missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view books >/dev/null 2>&1; then
+            echo "release already exists"
+          else
+            gh release create books --target main --title "حزم الكتب" --notes-file release-notes-template.md
+          fi
